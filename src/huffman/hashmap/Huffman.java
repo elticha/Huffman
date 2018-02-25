@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,27 +24,29 @@ public class Huffman {
     private File archivoLeido;
     private String cadenaLeida;
     private HashMap<String, Integer> freqTable;
-    private String copy[];
-    private Arbol huffmanTree;
+    private ArrayList<String> keys;
 
     public Huffman() {
         archivoLeido = null;
         cadenaLeida = "";
         freqTable = new HashMap<>();
-        huffmanTree = new Arbol();
-        copy = null;
+        keys = new ArrayList<>();
     }
 
     public void createTree() {
-        Integer leftFreq, rightFreq;
-        String leftChar, rightChar;
-        Nodo izq, der;
-        
-        while (freqTable.size() > 0) {
-            leftFreq = freqTable.get(copy[0]);
-            rightFreq = freqTable.get(copy[1]);
-            
+        int lFreq, rFreq,i;
+        while(freqTable.size() > 1){
+            lFreq = freqTable.get(keys.get(0));
+            rFreq = freqTable.get(keys.get(1));
+            freqTable.put("", (lFreq +  rFreq) );
+            freqTable.remove(keys.get(0));
+            freqTable.remove(keys.get(1));
+            keys.remove(0);
+            keys.remove(0);
+            freqTable = sort();
         }
+        
+        displayTable();
     }
 
     public void setFile(File f) throws IOException {
@@ -61,16 +64,13 @@ public class Huffman {
     }
 
     public void displayTable() {
-        copy = new String[freqTable.size()];
         Set set = freqTable.entrySet();
         Iterator iterator = set.iterator();
-        int i = 0;
         System.out.println("\n\n\t=== Tabla de frecuencias ===\n\n");
         while (iterator.hasNext()) {
             Map.Entry mentry = (Map.Entry) iterator.next();
-            copy[i] = String.valueOf(mentry.getKey());
-            i++;
             System.out.println("\t   [ " + mentry.getKey() + " ] ---> [ " + mentry.getValue() + " ]");
+            keys.add((String)mentry.getKey());
         }
     }
 
