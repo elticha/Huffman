@@ -1,1 +1,1 @@
-Luis Fernando Hernández Morales
+Habia una vez un muchacho que estudiaba la ingeniería en desarrollo de software en la Universidad Politécnica de Chiapas, todo iba muy bien hasta que le tocó la materia de Estructuras de Datos Avanzadas con el profesor Fon Bon y comenzaron a ver árboles de Huffman.

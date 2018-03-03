@@ -21,32 +21,85 @@ import java.util.Set;
 
 public class Huffman {
 
+    //combine
+    //Tree map
+    //Cadenas de 2 a 6
     private File archivoLeido;
     private String cadenaLeida;
     private HashMap<String, Integer> freqTable;
     private ArrayList<String> keys;
+    private ArrayList<Nodo> nodos;
+    private ArrayList<Nodo> referencias;
+    private Arbol arbol;
 
     public Huffman() {
         archivoLeido = null;
         cadenaLeida = "";
-        freqTable = new HashMap<>();
-        keys = new ArrayList<>();
+        freqTable = new HashMap<>();//Tabla original
+        keys = new ArrayList<>();//LLaves de la tabla original
+        nodos = new ArrayList<>();//Nodos
+        referencias = new ArrayList<>();//Copia de los nodos
+        arbol = new Arbol();//Arbol a guardar
+        
+        
+        
+        
+        
+
+    }
+    
+        private void pruebaGrupos(){
+            String s;
+           for(int i = 0; i < cadenaLeida.length()-1; i++){
+               s = cadenaLeida.substring(i, i+2);
+               if(getCantidadDeCoincidencias(s) > 6){
+                s = cadenaLeida.substring(i, i+3);
+               }
+               //System.out.println("La cadena " + s + " se repite " + getCantidadDeCoincidencias(s) + " veces.");
+           }
+        }
+    
+    private int getCantidadDeCoincidencias(String s){
+        int times = 0;
+        String cmp = cadenaLeida;
+        while(cmp.indexOf(s) > -1){
+           cmp = cmp.substring(cmp.indexOf(s)+s.length(),cmp.length());
+           times++;
+        }
+        return times;
     }
 
     public void createTree() {
-        int lFreq, rFreq,i;
-        while(freqTable.size() > 1){
-            lFreq = freqTable.get(keys.get(0));
-            rFreq = freqTable.get(keys.get(1));
-            freqTable.put("", (lFreq +  rFreq) );
-            freqTable.remove(keys.get(0));
-            freqTable.remove(keys.get(1));
-            keys.remove(0);
-            keys.remove(0);
-            freqTable = sort();
+
+        int lFreq, rFreq;
+        Nodo lNode, rNode;
+
+        while (nodos.size() > 1) {
+            lFreq = nodos.get(0).getFrecuencia();
+            rFreq = nodos.get(1).getFrecuencia();
+            lNode = nodos.get(0);
+            rNode = nodos.get(1);
+
+            nodos.add(new Nodo("", (lFreq + rFreq)));
+            nodos.get(nodos.size() - 1).setIzquierdo(lNode);
+            nodos.get(nodos.size() - 1).getIzquierdo().setLado(0);
+            nodos.get(nodos.size() - 1).setDerecho(rNode);
+            nodos.get(nodos.size() - 1).getDerecho().setLado(1);
+            nodos.get(nodos.size() - 1).getIzquierdo().setPadre(nodos.get(nodos.size() - 1));
+            nodos.get(nodos.size() - 1).getDerecho().setPadre(nodos.get(nodos.size() - 1));
+
+            if (nodos.get(0).getValor() != null) {
+                referencias.add(nodos.get(0));
+                referencias.add(nodos.get(1));
+            }
+            nodos.remove(0);
+            nodos.remove(0);
+            nodos = reOrdenar(nodos);
         }
+        nodos.get(0).setPadre(null);
         
-        displayTable();
+        arbol.insertarNodoRaiz(nodos.get(0));
+        pruebaGrupos();
     }
 
     public void setFile(File f) throws IOException {
@@ -56,7 +109,7 @@ public class Huffman {
 
     public void pepareTable() {
         for (int i = 0; i < cadenaLeida.length(); i++) {
-            freqTable.put(String.valueOf(cadenaLeida.charAt(i)), getFrequencyOf(String.valueOf(cadenaLeida.charAt(i))));
+            freqTable.put(String.valueOf(cadenaLeida.charAt(i)), getFrequencyOf(String.valueOf(cadenaLeida.charAt(i))));   
         }
 
         //Ordenar la tabla
@@ -70,7 +123,8 @@ public class Huffman {
         while (iterator.hasNext()) {
             Map.Entry mentry = (Map.Entry) iterator.next();
             System.out.println("\t   [ " + mentry.getKey() + " ] ---> [ " + mentry.getValue() + " ]");
-            keys.add((String)mentry.getKey());
+            keys.add((String) mentry.getKey());
+            nodos.add(new Nodo((String) mentry.getKey(), (int) mentry.getValue()));
         }
     }
 
@@ -80,7 +134,7 @@ public class Huffman {
         Collections.sort(list, new Comparator() {
             @Override
             public int compare(Object t, Object t1) {
-                return ((Comparable) ((Map.Entry) (t)).getValue()).compareTo(((Map.Entry) (t1)).getValue());
+                return ((Comparable) ((Map.Entry) t).getValue()).compareTo(((Map.Entry) t1).getValue());
             }
 
         });
@@ -133,4 +187,21 @@ public class Huffman {
         reader.close();
         return i;
     }
+
+    private ArrayList<Nodo> reOrdenar(ArrayList<Nodo> nodos) {
+        ArrayList<Nodo> aux = nodos;
+        //Burbuja
+        Nodo temp = null;
+        for (int i = 0; i < nodos.size(); i++) {
+            for (int j = 1; j < (nodos.size() - i); j++) {
+                if (aux.get(j - 1).getFrecuencia() > aux.get(j).getFrecuencia()) {
+                    temp = aux.get(j - 1);
+                    aux.set((j - 1), aux.get(j));
+                    aux.set(j, temp);
+                }
+            }
+        }
+        return aux;
+    }
+
 }
